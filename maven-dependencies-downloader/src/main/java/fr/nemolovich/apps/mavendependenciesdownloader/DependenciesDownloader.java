@@ -127,18 +127,18 @@ public final class DependenciesDownloader {
 								outputFile.getPath(), ex);
 						}
 
-						/*
-						 * Remove output file if the download failed.
-						 */
-						if (outputFile.exists()
-							&& outputFile.length() == 0) {
-							outputFile.delete();
-						}
 					}
 				} catch (DependenciesException ex) {
 					LOGGER.error(String.format(
 						"[%s] dependency download error",
 						d.getArtifactId()), ex);
+				}
+				/*
+				 * Remove output file if the download failed.
+				 */
+				if (outputFile.exists()
+					&& outputFile.length() == 0) {
+					outputFile.delete();
 				}
 			}
 		}
