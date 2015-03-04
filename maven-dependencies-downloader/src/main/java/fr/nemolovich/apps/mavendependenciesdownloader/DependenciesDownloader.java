@@ -16,13 +16,14 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 
 /**
- * Utilities to download all dependencies of a pom.xml {@link Model}.
+ * Utilities to download all dependencies of a pom.xml
+ * {@link Model}.
  *
  * @author Nemolovich
  */
@@ -31,31 +32,41 @@ public final class DependenciesDownloader {
 	/**
 	 * Logger.
 	 */
-	private static final Logger LOGGER = Logger
-			.getLogger(DependenciesDownloader.class);
-	private static final String NOT_NEEDED_SCOPES = "(test|provided|system)";
-	private static final Pattern NOT_NEEDED_SCOPES_PATTERN = Pattern.compile(
-			NOT_NEEDED_SCOPES, Pattern.CASE_INSENSITIVE);
+	private static final Logger LOGGER;
+	private static final String NOT_NEEDED_SCOPES
+		= "(test|provided|system)";
+	private static final Pattern NOT_NEEDED_SCOPES_PATTERN
+		= Pattern.compile(NOT_NEEDED_SCOPES,
+			Pattern.CASE_INSENSITIVE);
 
-	public static final String MAVEN_REPO = "https://repo1.maven.org/maven2/";
+	public static final String MAVEN_REPO
+		= "https://repo1.maven.org/maven2/";
+
+	static {
+		URL url = DependenciesDownloader.class.
+			getResource("/config/log4j.properties");
+		if (url != null) {
+			PropertyConfigurator.configure(url);
+		}
+		LOGGER = Logger
+			.getLogger(DependenciesDownloader.class);
+	}
 
 	/**
-	 * Download all dependencies JAR files from a pom {@link Model} to an output
-	 * folder path.
+	 * Download all dependencies JAR files from a pom
+	 * {@link Model} to an output folder path.
 	 *
-	 * @param model
-	 *            {@link Model} - The pom model.
-	 * @param outputFolderPath
-	 *            {@link String} - The output folder path.
-	 * @param mavenRepoURL
-	 *            {@link String}[] - The maven repositories URL to search
-	 *            dependencies.
-	 * @throws DependenciesException
-	 *             If the output folder path can not be created.
+	 * @param model {@link Model} - The pom model.
+	 * @param outputFolderPath {@link String} - The output
+	 * folder path.
+	 * @param mavenRepoURL {@link String}[] - The maven
+	 * repositories URL to search dependencies.
+	 * @throws DependenciesException If the output folder
+	 * path can not be created.
 	 */
 	public static void downloadDependencies(Model model,
-			String outputFolderPath, String... mavenRepoURL)
-			throws DependenciesException {
+		String outputFolderPath, String... mavenRepoURL)
+		throws DependenciesException {
 
 		if (mavenRepoURL != null) {
 
@@ -80,7 +91,7 @@ public final class DependenciesDownloader {
 				if (neededScopeDependency(scope)) {
 					download = getDownloadPath(d);
 					fileName = download
-							.substring(download.lastIndexOf('/') + 1);
+						.substring(download.lastIndexOf('/') + 1);
 				}
 
 				/*
@@ -93,8 +104,8 @@ public final class DependenciesDownloader {
 						 * Can not create output folder.
 						 */
 						throw new OutputDependcyFileException(
-								dependeciesFolder.getPath(), new IOException(
-										"Can not create output folder"));
+							dependeciesFolder.getPath(), new IOException(
+								"Can not create output folder"));
 					}
 				}
 
@@ -102,7 +113,7 @@ public final class DependenciesDownloader {
 				 * Initialize the output file.
 				 */
 				File outputFile = new File(String.format("%s/%s",
-						dependeciesFolder.getPath(), fileName));
+					dependeciesFolder.getPath(), fileName));
 
 				/*
 				 * Try to write data in output file.
@@ -111,7 +122,7 @@ public final class DependenciesDownloader {
 					if (download != null && fileName != null) {
 
 						try (DataOutputStream dlOut = new DataOutputStream(
-								new FileOutputStream(outputFile))) {
+							new FileOutputStream(outputFile))) {
 
 							UnknownDependencyException exception = null;
 							for (String downloadURL : mavenRepoURL) {
@@ -124,14 +135,14 @@ public final class DependenciesDownloader {
 								 * Get complete download URL.
 								 */
 								URL dlURL = new URL(String.format("%s%s",
-										downloadURL, download));
+									downloadURL, download));
 
 								try {
 									downloadFile(dlURL, dlOut);
 									break;
 								} catch (FileNotFoundException ex) {
 									exception = new UnknownDependencyException(
-											dlURL.toString(), ex);
+										dlURL.toString(), ex);
 								}
 							}
 							if (exception != null) {
@@ -142,14 +153,14 @@ public final class DependenciesDownloader {
 							 * File can not be downloaded.
 							 */
 							throw new OutputDependcyFileException(
-									outputFile.getPath(), ex);
+								outputFile.getPath(), ex);
 						}
 
 					}
 				} catch (DependenciesException ex) {
 					LOGGER.error(
-							String.format("[%s] dependency download error",
-									d.getArtifactId()), ex);
+						String.format("[%s] dependency download error",
+							d.getArtifactId()), ex);
 				}
 				/*
 				 * Remove output file if the download failed.
@@ -164,16 +175,15 @@ public final class DependenciesDownloader {
 	/**
 	 * Download a file from an url to the outputstream.
 	 *
-	 * @param dlURL
-	 *            {@link URL} - The file to download URL.
-	 * @param dlOut
-	 *            {@link OutputStream} - The output stream to write data.
-	 * @throws IOException
-	 *             If the file can not be located at the URL or the stream can
-	 *             not be read (or closed) or the data can not be write.
+	 * @param dlURL {@link URL} - The file to download URL.
+	 * @param dlOut {@link OutputStream} - The output stream
+	 * to write data.
+	 * @throws IOException If the file can not be located at
+	 * the URL or the stream can not be read (or closed) or
+	 * the data can not be write.
 	 */
 	private static void downloadFile(URL dlURL, OutputStream dlOut)
-			throws IOException {
+		throws IOException {
 		InputStream dlIs = dlURL.openStream();
 		DataInputStream dlIn;
 
@@ -191,35 +201,36 @@ public final class DependenciesDownloader {
 	}
 
 	/**
-	 * Format dependency path from {@link Dependency} object.
+	 * Format dependency path from {@link Dependency}
+	 * object.
 	 *
-	 * @param d
-	 *            {@link Dependency} - The dependency to format.
+	 * @param d {@link Dependency} - The dependency to
+	 * format.
 	 * @return {@link String} - The dependency format as
-	 *         <code>{group_id}/{artifact_id}/{version}/{artifact_id}-{version}.jar</code>
-	 *         .
+	 * <code>{group_id}/{artifact_id}/{version}/{artifact_id}-{version}.jar</code>
+	 * .
 	 */
 	private static String getDownloadPath(Dependency d) {
 		return d == null ? null : String.format("%1$s/%2$s/%3$s/%2$s-%3$s.jar",
-				d.getGroupId().replaceAll("\\.", "/"), d.getArtifactId()
-						.replaceAll("\\.", "/"), d.getVersion(), d
-						.getArtifactId());
+			d.getGroupId().replaceAll("\\.", "/"), d.getArtifactId()
+			.replaceAll("\\.", "/"), d.getVersion(), d
+			.getArtifactId());
 	}
 
 	/**
-	 * If the scope is a scope that required the jar at runtime returns
-	 * <code>true</code>.
+	 * If the scope is a scope that required the jar at
+	 * runtime returns <code>true</code>.
 	 *
 	 * <p>
-	 * If the scope is <code>null</code> it takes the default value
-	 * <code>"compile"</code>.
+	 * If the scope is <code>null</code> it takes the
+	 * default value <code>"compile"</code>.
 	 * </p>
 	 *
-	 * @param scope
-	 *            {@link String} - The scope to check.
-	 * @return {@link Boolean boolean} - <code>true</code> if the scope required
-	 *         JAR (like <code>"runtime"</code>), <code>false</code> otherwise
-	 *         (like <code>"test"</code>).
+	 * @param scope {@link String} - The scope to check.
+	 * @return {@link Boolean boolean} - <code>true</code>
+	 * if the scope required JAR (like
+	 * <code>"runtime"</code>), <code>false</code> otherwise
+	 * (like <code>"test"</code>).
 	 */
 	private static boolean neededScopeDependency(String scope) {
 		scope = scope == null ? "compile" : scope;
