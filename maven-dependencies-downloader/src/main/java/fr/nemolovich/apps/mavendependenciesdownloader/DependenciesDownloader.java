@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package fr.nemolovich.apps.mavendependenciesdownloader;
 
 import java.io.DataInputStream;
@@ -14,8 +9,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.maven.model.Dependency;
@@ -39,10 +42,17 @@ public final class DependenciesDownloader {
 		= Pattern.compile(NOT_NEEDED_SCOPES,
 			Pattern.CASE_INSENSITIVE);
 
+	/**
+	 * Custom trust manager if needed.
+	 */
+	private static ConcurrentLinkedQueue<TrustManager> TRUST_MANAGER;
+
 	public static final String MAVEN_REPO
 		= "https://repo1.maven.org/maven2/";
 
 	static {
+		TRUST_MANAGER = new ConcurrentLinkedQueue<>();
+
 		URL url = DependenciesDownloader.class.
 			getResource("/config/log4j.properties");
 		if (url != null) {
@@ -124,7 +134,7 @@ public final class DependenciesDownloader {
 						try (DataOutputStream dlOut = new DataOutputStream(
 							new FileOutputStream(outputFile))) {
 
-							UnknownDependencyException exception = null;
+							DependenciesException exception = null;
 							for (String downloadURL : mavenRepoURL) {
 								exception = null;
 
@@ -142,6 +152,10 @@ public final class DependenciesDownloader {
 									break;
 								} catch (FileNotFoundException ex) {
 									exception = new UnknownDependencyException(
+										dlURL.toString(), ex);
+								} catch (KeyManagementException |
+									NoSuchAlgorithmException ex) {
+									exception = new DownloadSecurityException(
 										dlURL.toString(), ex);
 								}
 							}
@@ -183,7 +197,16 @@ public final class DependenciesDownloader {
 	 * the data can not be write.
 	 */
 	private static void downloadFile(URL dlURL, OutputStream dlOut)
-		throws IOException {
+		throws IOException, KeyManagementException, NoSuchAlgorithmException {
+
+		if (!TRUST_MANAGER.isEmpty()) {
+			SSLContext sc = SSLContext.getInstance("SSL");
+			sc.init(null, TRUST_MANAGER.toArray(new TrustManager[0]),
+				new SecureRandom());
+			HttpsURLConnection.setDefaultSSLSocketFactory(
+				sc.getSocketFactory());
+		}
+
 		InputStream dlIs = dlURL.openStream();
 		DataInputStream dlIn;
 
@@ -198,6 +221,17 @@ public final class DependenciesDownloader {
 
 			dlIn.close();
 		}
+	}
+
+	/**
+	 * Define a custom trust manager if needed.
+	 *
+	 * @param trustManager {@link TrustManager}[] - The list
+	 * of managers to use.
+	 */
+	public static void setTrustManager(TrustManager... trustManager) {
+		TRUST_MANAGER = new ConcurrentLinkedQueue<>(
+			Arrays.asList(trustManager));
 	}
 
 	/**
