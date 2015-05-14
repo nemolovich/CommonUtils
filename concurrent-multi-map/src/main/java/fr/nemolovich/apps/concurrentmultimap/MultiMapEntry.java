@@ -23,7 +23,7 @@ public class MultiMapEntry<K, V> implements Entry<K, V>,
      * Constructor without value. Need to use
      * {@link #setValue(java.lang.Object)} to set it.
      *
-     * @param key {@link K} - The key to use.
+     * @param key {@link Object ? extends K} - The key to use.
      */
     public MultiMapEntry(K key) {
         this.key = key;
@@ -32,8 +32,9 @@ public class MultiMapEntry<K, V> implements Entry<K, V>,
     /**
      * Default constructor.
      *
-     * @param key {@link K} - The key to use.
-     * @param value {@link V} - The value to associate with key.
+     * @param key {@link Object ? extends K} - The key to use.
+     * @param value {@link Object ? extends V} - The value to associate with
+     * key.
      */
     public MultiMapEntry(K key, V value) {
         this.key = key;
@@ -43,7 +44,8 @@ public class MultiMapEntry<K, V> implements Entry<K, V>,
     /**
      * Copy constructor.
      *
-     * @param entry
+     * @param entry {@link Entry}&lt;{@link Object ? extends K},
+     * {@link Object ? extends V}&gt;: The entry to copy.
      */
     public MultiMapEntry(Entry<? extends K, ? extends V> entry) {
         this.key = entry.getKey();

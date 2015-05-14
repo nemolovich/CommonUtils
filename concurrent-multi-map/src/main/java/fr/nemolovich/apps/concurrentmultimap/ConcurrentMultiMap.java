@@ -191,8 +191,8 @@ public class ConcurrentMultiMap<K, V> implements
             if (idx != null) {
                 result = this.values.get(idx);
                 if (!this.keys.remove(idx).equals(key)
-                    || (result != null && !this.values.remove(idx).equals(
-                        result))) {
+                    || result != null && !this.values.remove(idx).equals(
+                        result)) {
                     result = null;
                 }
             }

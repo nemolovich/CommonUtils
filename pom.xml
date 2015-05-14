@@ -1,23 +1,124 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>fr.nemolovich.apps</groupId>
-	<artifactId>common-utils</artifactId>
-	<version>0.1</version>
-	<packaging>pom</packaging>
-	<name>CommonUtils</name>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>fr.nemolovich.apps</groupId>
+    <artifactId>common-utils</artifactId>
+    <version>0.1</version>
+    <packaging>pom</packaging>
+    <name>CommonUtils</name>
+    <description>Some Java Utilities</description>
+    <organization>
+        <name>nemolovich-apps</name>
+        <url>http://github.com/nemolovich</url>
+    </organization>
+    <url>http://github.com/nemolovich/CommonUtils</url>
+    
+    <developers>
+        <developer>
+            <name>Nemolovich</name>
+            <email>nemolovich.apps@outlook.com</email>
+            <organization>nemolovich-apps</organization>
+            <url>http://github.com/nemolovich</url>
+        </developer>
+    </developers>
+    
+    <contributors>
+        <contributor>
+            <name>Nemolovich</name>
+            <email>nemolovich.apps@outlook.com</email>
+            <organization>nemolovich-apps</organization>
+            <url>http://github.com/nemolovich</url>
+        </contributor>
+    </contributors>
 	
     <modules>
         <module>concurrent-multi-map</module>
         <module>maven-dependencies-downloader</module>
     </modules>
 	
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
-	</properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <sonar.report.path>../sonar-report.pdf</sonar.report.path>
+    </properties>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.4</version>
+            </plugin>
+        </plugins>
+        
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.4</version>
+                    <configuration>
+                        <outputDirectory>${basedir}/site</outputDirectory>
+                        <attributes>
+                            <headContent>
+                                &lt;div style="border-top: 1px solid #aaa;border-bottom: 1px solid #aaa;background-color: #ccc;"&gt;
+                                &lt;b&gt;${project.name}&lt;/b&gt;
+                                &lt;/div&gt;
+                            </headContent>
+                        </attributes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.8</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <configuration>
+                    <show>private</show>
+                    <doctitle>Documentation for ${project.name} ${project.version}</doctitle>
+                    <windowtitle>${project.name} JavaDoc</windowtitle>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <id>default</id>
+                        <reports>
+                            <report>javadoc</report>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                    <reportSet>
+                        <id>html</id>
+                        <reports>
+                            <report>javadoc</report>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>2.18.1</version>
+            </plugin>
+        </plugins>
+    </reporting>
 	
-	<dependencies>
-	</dependencies>
+    <dependencies>
+    </dependencies>
 </project>

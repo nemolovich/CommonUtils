@@ -16,8 +16,8 @@ public class ImmutableMultiMapEntry<K, V> extends MultiMapEntry<K, V> {
     /**
      * Default constructor.
      *
-     * @param key
-     * @param value
+     * @param key {@link Object ? extends K}: The key.
+     * @param value {@link Object ? extends V}: The value.
      */
     public ImmutableMultiMapEntry(K key, V value) {
         super(key, value);
@@ -26,7 +26,8 @@ public class ImmutableMultiMapEntry<K, V> extends MultiMapEntry<K, V> {
     /**
      * Copy constructor.
      *
-     * @param entry
+     * @param entry {@link Entry}&lt;{@link Object ? extends K},
+     * {@link Object ? extends V}&gt;: The entry to copy.
      */
     public ImmutableMultiMapEntry(Entry<? extends K, ? extends V> entry) {
         super(entry);
@@ -35,8 +36,8 @@ public class ImmutableMultiMapEntry<K, V> extends MultiMapEntry<K, V> {
     /**
      * Can not be used for immutable entry.
      *
-     * @param value {@link V}: The value to set.
-     * @return
+     * @param value {@link Object ? extends V}: The value to set.
+     * @return {@link Object ? extends V} - The value.
      * @throws UnsupportedOperationException always
      */
     @Override
