@@ -4,8 +4,11 @@ import java.io.Serializable;
 import java.util.Map.Entry;
 
 /**
+ * A basic {@link Entry}.
  *
  * @author Nemolovich
+ * @param <K> Key Class
+ * @param <V> Value Class
  */
 public class MultiMapEntry<K, V> implements Entry<K, V>,
     Serializable {
@@ -16,15 +19,32 @@ public class MultiMapEntry<K, V> implements Entry<K, V>,
     private final K key;
     private V value;
 
+    /**
+     * Constructor without value. Need to use
+     * {@link #setValue(java.lang.Object)} to set it.
+     *
+     * @param key {@link K} - The key to use.
+     */
     public MultiMapEntry(K key) {
         this.key = key;
     }
 
+    /**
+     * Default constructor.
+     *
+     * @param key {@link K} - The key to use.
+     * @param value {@link V} - The value to associate with key.
+     */
     public MultiMapEntry(K key, V value) {
         this.key = key;
         this.value = value;
     }
 
+    /**
+     * Copy constructor.
+     *
+     * @param entry
+     */
     public MultiMapEntry(Entry<? extends K, ? extends V> entry) {
         this.key = entry.getKey();
         this.value = entry.getValue();

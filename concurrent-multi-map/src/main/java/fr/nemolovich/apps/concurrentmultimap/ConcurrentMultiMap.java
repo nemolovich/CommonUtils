@@ -27,11 +27,19 @@ public class ConcurrentMultiMap<K, V> implements
     private final ConcurrentHashMap<Integer, K> keys;
     private final ConcurrentHashMap<Integer, V> values;
 
+    /**
+     * Default constructor.
+     */
     public ConcurrentMultiMap() {
         this.keys = new ConcurrentHashMap<>();
         this.values = new ConcurrentHashMap<>();
     }
 
+    /**
+     * Returns the next usable index.
+     *
+     * @return {@link Integer} - The new index.
+     */
     private Integer getNextIndex() {
         Integer result = Integer.MIN_VALUE;
         for (Entry<Integer, K> entry
@@ -43,6 +51,14 @@ public class ConcurrentMultiMap<K, V> implements
         return result;
     }
 
+    /**
+     * Returns the index of given key. Returns <code>null</code> if the given
+     * key does not exist in the keys list.
+     *
+     * @param key {@link Object}: The key to look for.
+     * @return {@link Integer} - The index if key exists, <code>null</code> if
+     * it does not.
+     */
     private Integer getKeyIndex(Object key) {
         Integer result = null;
         for (Entry<Integer, K> entry
@@ -74,7 +90,7 @@ public class ConcurrentMultiMap<K, V> implements
         boolean result = false;
         synchronized (this.values) {
             if (this.containsKey((K) key)
-                && this.containsValue((V) value)
+                && this.get((K) key).equals((V) value)
                 && this.remove((K) key).equals(value)) {
                 result = true;
             }
@@ -86,7 +102,7 @@ public class ConcurrentMultiMap<K, V> implements
     public boolean replace(K key, V oldValue, V newValue) {
 
         boolean result = this.containsKey((K) key)
-            && this.containsValue((V) oldValue);
+            && this.get((K) key).equals(oldValue);
         if (result) {
             result = oldValue != null && oldValue.equals(
                 this.replace((K) key, newValue));
@@ -175,8 +191,8 @@ public class ConcurrentMultiMap<K, V> implements
             if (idx != null) {
                 result = this.values.get(idx);
                 if (!this.keys.remove(idx).equals(key)
-                    || !this.values.remove(idx).equals(
-                        key)) {
+                    || (result != null && !this.values.remove(idx).equals(
+                        result))) {
                     result = null;
                 }
             }
